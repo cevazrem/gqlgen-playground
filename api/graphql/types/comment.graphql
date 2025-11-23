@@ -1,0 +1,8 @@
+type Comment {
+    id: UUID!
+    author: User!
+    content: String!
+    createdAt: Time!
+    # Рекурсивный тип -> DoS по глубине
+    replies(limit: Int = 50, offset: Int = 0): [Comment!]!
+}

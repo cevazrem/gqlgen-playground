@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+package content.v1;
+
+option go_package = "gqlgen-playground/internal/pb/content/v1;contentv1";
+
+import "google/protobuf/timestamp.proto";
+
+service ContentService {
+  // ** Users **
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+
+  // ** Posts **
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+  rpc GetPost(GetPostRequest) returns (GetPostResponse);
+  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse);
+
+  // ** Comments **
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse);
+}
+
+// ** Users **
+
+message User {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  optional google.protobuf.Timestamp deleted_at = 4;
+  string username = 5;
+  string name = 6;
+  optional string email = 7;
+  optional string phone = 8;
+}
+
+message CreateUserRequest {
+  string username = 1;
+  string name = 2;
+  optional string email = 3;
+  optional string phone = 4;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message GetUserRequest {
+  oneof Filter {
+    string id = 1;
+    string username = 2;
+  }
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {
+  message Filter {
+    repeated string ids_in = 1;
+    repeated string usernames_in = 2;
+    optional google.protobuf.Timestamp created_at_from = 3;
+    optional google.protobuf.Timestamp created_at_to = 4;
+  }
+
+  Filter filter = 1;
+  int64 page = 2;
+  int64 per_page = 3;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int64 total = 2;
+}
+
+// ** Posts **
+
+message Post {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  optional google.protobuf.Timestamp deleted_at = 4;
+  string author_id = 5;
+  string title = 6;
+  string body = 7;
+}
+
+message CreatePostRequest {
+  string author_id = 1;
+  string title = 2;
+  string body = 3;
+}
+
+message CreatePostResponse {
+  Post post = 1;
+}
+
+message GetPostRequest {
+  string id = 1;
+}
+
+message GetPostResponse {
+  Post post = 1;
+}
+
+message ListPostsRequest {
+  message Filter {
+    repeated string ids_in = 1;
+    repeated string author_ids_in = 2;
+    optional google.protobuf.Timestamp created_at_from = 3;
+    optional google.protobuf.Timestamp created_at_to = 4;
+  }
+
+  Filter filter = 1;
+  int64 page = 2;
+  int64 per_page = 3;
+}
+
+message ListPostsResponse {
+  repeated Post posts = 1;
+  int64 total = 2;
+}
+
+// ** Comments **
+
+message Comment {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  optional google.protobuf.Timestamp deleted_at = 4;
+  string post_id = 5;
+  string author_id = 6;
+  string body = 7;
+}
+
+message CreateCommentRequest {
+  string post_id = 1;
+  string author_id = 2;
+  string body = 3;
+}
+
+message CreateCommentResponse {
+  Comment comment = 1;
+}
+
+message ListCommentsRequest {
+  message Filter {
+    repeated string ids_in = 1;
+    repeated string author_ids_in = 2;
+    repeated string post_ids_in = 3;
+    optional google.protobuf.Timestamp created_at_from = 4;
+    optional google.protobuf.Timestamp created_at_to = 5;
+  }
+
+  Filter filter = 1;
+  int64 page = 2;
+  int64 per_page = 3;
+}
+
+message ListCommentsResponse {
+  repeated Comment comments = 1;
+  int64 total = 2;
+}
+

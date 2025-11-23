@@ -1,0 +1,82 @@
+grpcurl -plaintext \
+  -d '{
+    "username": "smoke_user_3",
+    "name": "Smoke Test User",
+    "email": "smoke1@example.com",
+    "phone": "+70000000001"
+  }' \
+  localhost:50051 content.v1.ContentService/CreateUser
+
+
+grpcurl -plaintext \
+  -d '{
+    "id": "3438556c-2afc-4fa6-8d98-6b24782e39c1"
+  }' \
+  localhost:50051 content.v1.ContentService/GetUser
+
+
+grpcurl -plaintext \
+  -d '{
+    "filter": {
+      "usernamesIn": ["smoke_user_1"]
+    },
+    "page": 1,
+    "perPage": 10
+  }' \
+  localhost:50051 content.v1.ContentService/ListUsers
+
+
+grpcurl -plaintext \
+  -d '{
+    "authorId": "3438556c-2afc-4fa6-8d98-6b24782e39c1",
+    "title": "Smoke test post",
+    "body": "Hello from content-service smoke test"
+  }' \
+  localhost:50051 content.v1.ContentService/CreatePost
+
+
+grpcurl -plaintext \
+  -d '{
+    "id": "093ef5cf-7d5e-4b15-b382-d19ad04726a6"
+  }' \
+  localhost:50051 content.v1.ContentService/GetPost
+
+
+grpcurl -plaintext \
+  -d '{
+    "filter": {
+      "authorIdsIn": ["3438556c-2afc-4fa6-8d98-6b24782e39c1"]
+    },
+    "page": 1,
+    "perPage": 10
+  }' \
+  localhost:50051 content.v1.ContentService/
+
+
+grpcurl -plaintext \
+  -d '{
+    "postId": "093ef5cf-7d5e-4b15-b382-d19ad04726a6",
+    "authorId": "3438556c-2afc-4fa6-8d98-6b24782e39c1",
+    "body": "First smoke comment"
+  }' \
+  localhost:50051 content.v1.ContentService/CreateComment
+
+
+grpcurl -plaintext \
+  -d '{
+    "filter": {
+      "postIdsIn": ["093ef5cf-7d5e-4b15-b382-d19ad04726a6"],
+      "authorIdsIn": ["3438556c-2afc-4fa6-8d98-6b24782e39c1"]
+    },
+    "page": 1,
+    "perPage": 10
+  }' \
+  localhost:50051 content.v1.ContentService/ListComments
+
+grpcurl -plaintext \
+  -d '{
+    "filter": {},
+    "page": 1,
+    "perPage": 10
+  }' \
+  localhost:50051 content.v1.ContentService/ListComments

@@ -1,0 +1,67 @@
+extend type Query {
+    # Базовый пользователь, чтобы было с чего начинать запросы
+    me: User!
+
+    userByID(id: UUID!): User
+    post(id: UUID!): Post
+
+    # Списки — для алиасов и N+1
+    users(limit: Int = 10, offset: Int = 0): [User!]!
+    posts(limit: Int = 10, offset: Int = 0): [Post!]!
+    comments(postID: UUID!, limit: Int = 50, offset: Int = 0): [Comment!]!
+
+    # Сложные аргументы → DoS по аргументам
+    searchUsers(filter: UserFilter, limit: Int = 100): [User!]!
+
+    # "Дорогая" агрегация
+    expensiveAggregation(input: ExpensiveInput!): AggregationResult!
+}
+
+input UserFilter {
+    and: [UserFilter!]
+    or: [UserFilter!]
+
+    nameContains: String
+    emailDomainIn: [String!]
+    minPosts: Int
+}
+
+input ExpensiveInput {
+    groupBy: [AggregationField!]!
+    metrics: [AggregationMetricInput!]!
+    filters: [AggregationFilterGroupInput!]
+    timeRange: TimeRangeInput
+}
+
+input AggregationMetricInput {
+    field: AggregationField!
+    operation: MetricOp!
+}
+
+input AggregationFilterGroupInput {
+    and: [AggregationFilterGroupInput!]
+    or: [AggregationFilterGroupInput!]
+    predicate: AggregationPredicateInput
+}
+
+input AggregationPredicateInput {
+    field: AggregationField!
+    op: ComparisonOp!
+    stringValue: String
+    intValue: Int
+    floatValue: Float
+}
+
+input TimeRangeInput {
+    from: Time!
+    to: Time!
+}
+
+type AggregationResult {
+    rows: [AggregationRow!]!
+}
+
+type AggregationRow {
+    keys: [String!]!
+    metrics: [Float!]!
+}

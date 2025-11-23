@@ -1,0 +1,10 @@
+enum ComparisonOp {
+    EQ
+    NEQ
+    GT
+    GTE
+    LT
+    LTE
+    IN
+    NOT_IN
+}

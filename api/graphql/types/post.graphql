@@ -1,0 +1,7 @@
+type Post {
+    id: UUID!
+    title: String!
+    content: String!
+    author: User!
+    comments(limit: Int = 50, offset: Int = 0): [Comment!]!
+}

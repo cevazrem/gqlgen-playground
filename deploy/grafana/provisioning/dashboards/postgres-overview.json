@@ -1,0 +1,271 @@
+{
+  "uid": "postgres-overview",
+  "title": "Postgres DoS Overview (content-service)",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Connections vs max_connections (content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(pg_stat_activity_count{datname=\"content\"})",
+          "legendFormat": "active connections"
+        },
+        {
+          "refId": "B",
+          "expr": "pg_settings_max_connections",
+          "legendFormat": "max_connections"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "TPS (commit + rollback, content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_xact_commit{datname=\"content\"}[1m])) + sum(rate(pg_stat_database_xact_rollback{datname=\"content\"}[1m]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Cache hit ratio (content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(pg_stat_database_blks_hit{datname=\"content\"}) / (sum(pg_stat_database_blks_hit{datname=\"content\"}) + sum(pg_stat_database_blks_read{datname=\"content\"}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 7
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Disk read/write time (ms/s, content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_blk_read_time{datname=\"content\"}[1m]))",
+          "legendFormat": "read_time"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(pg_stat_database_blk_write_time{datname=\"content\"}[1m]))",
+          "legendFormat": "write_time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "milliseconds"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 7
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Temp bytes per second (content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_temp_bytes{datname=\"content\"}[1m]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 7
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Rows returned per second (content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_tup_returned{datname=\"content\"}[1m]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Deadlocks & conflicts (content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_deadlocks{datname=\"content\"}[5m]))",
+          "legendFormat": "deadlocks"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(pg_stat_database_conflicts{datname=\"content\"}[5m]))",
+          "legendFormat": "conflicts"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Max transaction duration (seconds, content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "pg_stat_activity_max_tx_duration{datname=\"content\"}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Connections by state (content)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": null
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (state) (pg_stat_activity_count{datname=\"content\"})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      }
+    }
+  ]
+}

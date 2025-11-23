@@ -1,0 +1,89 @@
+version: "3.9"
+
+services:
+  content-postgres:
+    image: postgres:16
+    container_name: content-postgres
+    environment:
+      POSTGRES_USER: content
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: content
+    ports:
+      - "5433:5432"
+    volumes:
+      - content_pg_data:/var/lib/postgresql/data
+    mem_limit: 512m
+    cpus: "1.0"
+
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    container_name: postgres-exporter
+    depends_on:
+      - content-postgres
+    environment:
+      DATA_SOURCE_NAME: "postgresql://content:secret@content-postgres:5432/content?sslmode=disable"
+    ports:
+      - "9187:9187"
+
+  content-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.content-service
+    container_name: content-service
+    depends_on:
+      - content-postgres
+    environment:
+      CONTENT_PG_DSN: postgres://content:secret@content-postgres:5432/content?sslmode=disable
+    ports:
+      - "50051:50051"
+
+    # 🔥 Ограничение ресурсов
+    mem_limit: 256m
+    cpus: "0.5"
+
+  gql-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.gql-server
+    container_name: gql-api
+    depends_on:
+      - content-service
+    environment:
+      CONTENT_SERVICE_ADDR: content-service:50051
+      PORT: 8080
+    ports:
+      - "8080:8080"
+
+    # 🔥 Ограничение ресурсов
+    mem_limit: 256m
+    cpus: "0.5"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - gql-api
+      - content-service
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./deploy/grafana/provisioning:/etc/grafana/provisioning
+
+
+volumes:
+  content_pg_data:
+  grafana_data:

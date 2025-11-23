@@ -1,0 +1,31 @@
+# ===== stage 1: build =====
+FROM golang:1.24.9-alpine AS builder
+
+WORKDIR /app
+
+# зависимости
+COPY go.mod go.sum ./
+RUN go mod download
+
+# исходники
+COPY . .
+
+# сборка
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/content-service ./cmd/content-service
+
+# ===== stage 2: runtime =====
+FROM alpine:3.20
+
+RUN adduser -D -g '' appuser
+USER appuser
+
+WORKDIR /app
+
+COPY --from=builder /bin/content-service /app/content-service
+
+# внутри сети docker-compose хост базы — content-postgres
+ENV CONTENT_PG_DSN=postgres://content:secret@content-postgres:5432/content?sslmode=disable
+
+EXPOSE 50051
+
+ENTRYPOINT ["/app/content-service"]

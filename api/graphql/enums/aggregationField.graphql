@@ -1,0 +1,7 @@
+enum AggregationField {
+    USER
+    POST
+    COMMENT
+    DAY
+    HOUR
+}

@@ -1,0 +1,32 @@
+# ===== stage 1: build =====
+FROM golang:1.24.9-alpine AS builder
+
+WORKDIR /app
+
+# зависимости
+COPY go.mod go.sum ./
+RUN go mod download
+
+# исходники
+COPY . .
+
+# сборка gql-сервера
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/gql-server ./cmd/gql-server
+
+# ===== stage 2: runtime =====
+FROM alpine:3.20
+
+RUN adduser -D -g '' appuser
+USER appuser
+
+WORKDIR /app
+
+COPY --from=builder /bin/gql-server /app/gql-server
+
+# внутри сети docker-compose content-service доступен по имени контейнера
+ENV CONTENT_SERVICE_ADDR=content-service:50051
+ENV PORT=8080
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/gql-server"]
